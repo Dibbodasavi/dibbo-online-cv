@@ -1,0 +1,335 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dibbo Das CV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .header .title {
+            font-size: 16px;
+            font-weight: 300;
+            color: #d1e8ff;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .contact-info p {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #d1e8ff;
+        }
+        .contact-info a {
+            color: #d1e8ff;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .contact-info span {
+            font-size: 16px;
+        }
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section:nth-child(odd) {
+            background: #f9fafc;
+        }
+        .section h2 {
+            font-size: 22px;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        .section h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 2px;
+            background: #2a5298;
+            bottom: -5px;
+            left: 0;
+        }
+        .section p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .section ul {
+            list-style: none;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .section ul li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .section ul li::before {
+            content: '➔';
+            position: absolute;
+            left: 0;
+            color: #2a5298;
+        }
+        .job {
+            margin-bottom: 20px;
+        }
+        .job h3 {
+            font-size: 16px;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+        .job p {
+            font-style: italic;
+            color: #666;
+            font-size: 13px;
+        }
+        .reference {
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .contact-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://drive.google.com/uc?export=view&id=1gxWk-7ZZkrk4vTtlzAYcZFv4FjvD9u4k" alt="Dibbo Das Photo">
+            <h1>Dibbo Das</h1>
+            <div class="title">Graphic Designer | Social Media Specialist | Program Coordinator</div>
+            <div class="contact-info">
+                <p><span>📍</span> Chattogram, Bangladesh</p>
+                <p><span>📞</span> +8601871126615</p>
+                <p><span>✉️</span> <a href="mailto:dibbodasavi@gmail.com">dibbodasavi@gmail.com</a></p>
+                <p><span>🔗</span> <a href="https://www.linkedin.com/in/dibbodasavi" target="_blank">linkedin.com/in/dibbodasavi</a></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Summary</h2>
+            <p>Dynamic professional with over four years of leadership and coordination experience with Students For Liberty, specializing in social media management, graphic design, and digital marketing across South Asia and North America. Skilled in creating impactful content and managing regional programs to promote liberty. Holds a B.Sc. in Textile Engineering with published research on sustainable fashion, complemented by strong organizational and communication skills. Passionate about advancing pro-liberty initiatives through innovative strategies and community engagement.</p>
+        </div>
+
+        <div class="section">
+            <h2>Professional Experience</h2>
+            <div class="job">
+                <h3>Social Media Intern</h3>
+                <p>Students For Liberty, North America | October 2024 – Present</p>
+                <ul>
+                    <li>Manage content creation for Instagram, TikTok, and other platforms, increasing engagement with targeted posts.</li>
+                    <li>Support digital campaigns to promote liberty, collaborating with global teams.</li>
+                    <li>Participate in workshops to refine social media strategies.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>Regional Coordinator of Social Media</h3>
+                <p>South Asia Students For Liberty | May 2024 – Present</p>
+                <ul>
+                    <li>Lead content development for South Asia’s social media, enhancing regional visibility.</li>
+                    <li>Coordinate with student leaders to align content with organizational goals.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>Regional Coordinator (Design and Marketing)</h3>
+                <p>South Asia Students For Liberty | April 2023 – May 2024</p>
+                <ul>
+                    <li>Designed marketing materials and coordinated campaigns for liberty-focused events.</li>
+                    <li>Trained student coordinators, boosting program participation by 20%.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>National Coordinator (Design and Marketing)</h3>
+                <p>South Asia Students For Liberty | May 2022 – May 2023</p>
+                <ul>
+                    <li>Developed national marketing strategies and compelling content.</li>
+                    <li>Collaborated with senior leadership to align campaigns with global objectives.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>Local Coordinator</h3>
+                <p>Students For Liberty, Chattogram, Bangladesh | December 2020 – June 2022</p>
+                <ul>
+                    <li>Organized local events and workshops, growing chapter membership by 15%.</li>
+                    <li>Managed outreach to build a network of liberty advocates.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>Video Editor and Marketing Coordinator</h3>
+                <p>Ayn Rand Institute, California, USA (Remote) | May 2023 – September 2023</p>
+                <ul>
+                    <li>Edited promotional videos, enhancing social media reach.</li>
+                    <li>Managed content for myhappiness.team, aligning with branding.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Education</h2>
+            <p><strong>B.Sc. in Textile Engineering (Wet Processing Engineering)</strong><br>Chittagong Textile Engineering College, Chattogram, Bangladesh<br>2018 – 2023</p>
+        </div>
+
+        <div class="section">
+            <h2>Publications</h2>
+            <p>Das, D. and Paul, S., 2024. Promoting Consumer Engagement in Sustainable Fashion and Circular Textile Through Eco-Gamification in Bangladesh. DOI:10.46254/BA07.20240037.</p>
+            <div class="reference">
+                <p><strong>Reference:</strong> Das, D. & Paul, S. (2024) 'Promoting Consumer Engagement in Sustainable Fashion and Circular Textile Through Eco-Gamification in Bangladesh', DOI:10.46254/BA07.20240037.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Skills</h2>
+            <ul>
+                <li>Program Coordination</li>
+                <li>Social Media Management</li>
+                <li>Graphic Design (Photoshop, Illustrator, Premiere Pro, After Effects)</li>
+                <li>Digital Marketing & PR</li>
+                <li>WordPress, Basic JavaScript</li>
+                <li>Microsoft Office</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Certifications</h2>
+            <ul>
+                <li>Successful Negotiation: Essential Strategies and Skills, Coursera</li>
+                <li>Supply Chain Logistics, Coursera</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Awards & Achievements</h2>
+            <ul>
+                <li>Top Leadership Retreat, Kathmandu, Nepal, 2022 – Students For Liberty</li>
+                <li>Asia Top Leadership Retreat, Malaysia, 2023 – Students For Liberty</li>
+                <li>Textile Talent Hunt (2019-20): 9th Position, Chittagong Division</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Voluntary Experience</h2>
+            <div class="job">
+                <h3>Committee Member (Promotion and Marketing)</h3>
+                <p>Volunteers For Bangladesh, Chattogram, Bangladesh | July 2020 – February 2022</p>
+                <ul>
+                    <li>Promoted youth empowerment through marketing campaigns.</li>
+                    <li>Organized community outreach for JAAGO Foundation.</li>
+                </ul>
+            </div>
+            <div class="job">
+                <h3>Head of Marketing and Public Relations</h3>
+                <p>SAFE Teen, Bangladesh | April 2021 – February 2022</p>
+                <ul>
+                    <li>Led campaigns to raise awareness about teenage mental health.</li>
+                    <li>Developed PR strategies to enhance community impact.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Interests</h2>
+            <ul>
+                <li>Technology</li>
+                <li>Photography</li>
+                <li>Designing</li>
+                <li>Travel</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
